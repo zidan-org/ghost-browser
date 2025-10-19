@@ -5,11 +5,6 @@
 
 Make your browser automation behave like a real human.
 
-> **Fork notice:**  
-> This project is a fork of [zfcsoftware/puppeteer-real-browser](https://github.com/zfcsoftware/puppeteer-real-browser).  
-> Rewritten, refactored, and maintained in TypeScript by [@zidan-org](https://github.com/zidan-org).
-
----
 
 <p align="center">
   <a href="https://github.com/zidan-org/ghost-browser">
@@ -37,4 +32,12 @@ Make your browser automation behave like a real human.
 
 ```bash
 npm install ghost-browser
+
+---
+
+### Credits & License
+
+> Originally based on [puppeteer-real-browser](https://github.com/zfcsoftware/puppeteer-real-browser)  
+> © zfcsoftware — Licensed under MIT  
+> Rewritten, refactored, and maintained by [@zidan-org](https://github.com/zidan-org)
 
