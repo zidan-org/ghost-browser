@@ -4,8 +4,7 @@
 *(Playwright support coming soon 👀)*  
 
 Make your browser automation behave like a real human.
-
-
+-
 <p align="center">
   <a href="https://github.com/zidan-org/ghost-browser">
     <img src="https://github.com/zidan-org.png" alt="Ghost Browser Logo" width="80" height="80" />
@@ -21,7 +20,7 @@ Make your browser automation behave like a real human.
 ## ✨ Features
 - 🧠 **Human-like browsing:** realistic mouse movements & interactions  
 - 🔒 **Stealth engine:** hides automation traces and bot fingerprints  
-- ⚙️ **Supports Puppeteer & Playwright(soon)** (adapter-based design)  
+- ⚙️ **Supports Puppeteer & Playwright (soon)** — adapter-based design  
 - 🧩 **Plugin-ready:** works with puppeteer-extra plugins  
 - 📘 **TypeScript-first:** full typings, clean API  
 - 🐳 **Docker compatible**
@@ -32,6 +31,7 @@ Make your browser automation behave like a real human.
 
 ```bash
 npm install ghost-browser
+````
 
 ---
 
@@ -40,4 +40,3 @@ npm install ghost-browser
 > Originally based on [puppeteer-real-browser](https://github.com/zfcsoftware/puppeteer-real-browser)  
 > © zfcsoftware — Licensed under MIT  
 > Rewritten, refactored, and maintained by [@zidan-org](https://github.com/zidan-org)
-
