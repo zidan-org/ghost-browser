@@ -1,0 +1,40 @@
+{
+  "name": "ghost-browser",
+  "version": "2.0.0",
+  "description": "About A TypeScript stealth layer for Puppeteer and Playwright that makes your automation behave like a real browser — human-like, undetectable, and smooth.",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+      }  
+    },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "chrome-launcher": "^1.2.1",
+    "ghost-cursor": "^1.4.1",
+    "puppeteer-extra": "^3.3.6",
+    "rebrowser-puppeteer-core": "^24.8.1",
+    "tree-kill": "^1.2.2",
+    "xvfb": "^0.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/node": "^22.0.0"
+  },
+  "files": ["dist"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zidan-org/ghost-browser"
+  },
+  "author": "zidan-org",
+  "license": "ISC"
+}
