@@ -9,10 +9,10 @@ on:
 
 jobs:
   build:
-    name: Build TypeScript
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -36,12 +36,12 @@ jobs:
             exit 1
           fi
 
-  publish-npm:
-    name: Publish to npm
+  publish:
+    name: Publish to Registries
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -53,8 +53,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Publish package
+      - name: Publish to npm
         run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish to GitHub Packages
+        run: |
+          npm config set @OWNER:registry https://npm.pkg.github.com/
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release Notes
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,5 @@
 {
-  "name": "ghost-browser",
+  "name": "@zidan-org/ghost-browser",
   "version": "2.0.0",
   "description": "About A TypeScript stealth layer for Puppeteer and Playwright that makes your automation behave like a real browser — human-like, undetectable, and smooth.",
   "type": "module",
@@ -16,8 +16,17 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
+    "test": "node ./test/test.js",
     "prepare": "npm run build"
   },
+  "keywords": [
+    "playwright",
+    "puppeteer",
+    "cloudflare-bypass",
+    "undetectable",
+    "real-browser",
+    "ghost-cursor"
+  ],
   "dependencies": {
     "chrome-launcher": "^1.2.1",
     "ghost-cursor": "^1.4.1",
