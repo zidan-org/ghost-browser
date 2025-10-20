@@ -107,7 +107,7 @@ export async function connect(options = {}) {
         if (target.type() === "page") {
             const newPage = await target.page();
             if (!newPage)
-                return; // <--- safeguard for null
+                return;
             await pageController({
                 browser,
                 page: newPage,
