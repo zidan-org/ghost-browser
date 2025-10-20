@@ -1,5 +1,5 @@
 {
-  "name": "@zidan-org/ghost-browser",
+  "name": "ghost-browser",
   "version": "2.0.1",
   "description": "About A TypeScript stealth layer for Puppeteer and Playwright that makes your automation behave like a real browser — human-like, undetectable, and smooth.",
   "type": "module",
@@ -45,6 +45,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/zidan-org/ghost-browser"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "author": "zidan-org",
   "license": "ISC"
