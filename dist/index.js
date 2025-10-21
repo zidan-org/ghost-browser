@@ -1,5 +1,4 @@
 // src/core/launch.ts
-import { launch, Launcher } from "chrome-launcher";
 import puppeteer from "rebrowser-puppeteer-core";
 import { createCursor } from "ghost-cursor";
 import kill from "tree-kill";
@@ -117,6 +116,7 @@ async function pageController({
   return page;
 }
 async function connect(options = {}) {
+  const { launch, Launcher } = await import("chrome-launcher");
   let {
     args = [],
     headless = false,
@@ -175,16 +175,7 @@ async function connect(options = {}) {
     if (target.type() === "page") {
       const newPage = await target.page();
       if (!newPage) return;
-      await pageController({
-        browser,
-        page: newPage,
-        proxy,
-        turnstile,
-        xvfbsession,
-        pid: chrome.pid,
-        plugins,
-        chrome
-      });
+      await pageController({ browser, page: newPage, proxy, turnstile, xvfbsession, pid: chrome.pid, plugins, chrome });
     }
   });
   return { browser, page };

@@ -1,10 +1,9 @@
-import * as chrome_launcher from 'chrome-launcher';
-import { Options as Options$1 } from 'chrome-launcher';
 import * as rebrowser_puppeteer_core from 'rebrowser-puppeteer-core';
 import { ConnectOptions, Browser, Page } from 'rebrowser-puppeteer-core';
 export { Browser, Page } from 'rebrowser-puppeteer-core';
 import * as puppeteer_extra from 'puppeteer-extra';
 import { PuppeteerExtraPlugin } from 'puppeteer-extra';
+import * as chrome_launcher from 'chrome-launcher';
 
 interface ProxyOptions$1 {
     host?: string;
@@ -15,7 +14,7 @@ interface ProxyOptions$1 {
 interface ConnectParams {
     args?: string[];
     headless?: boolean | "auto";
-    customConfig?: Options$1;
+    customConfig?: any;
     proxy?: ProxyOptions$1;
     turnstile?: boolean;
     connectOption?: ConnectOptions;

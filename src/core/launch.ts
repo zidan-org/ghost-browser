@@ -1,6 +1,5 @@
-import { launch, Launcher, Options as ChromeOptions } from "chrome-launcher";
 import puppeteer, { Browser, Page, ConnectOptions } from "rebrowser-puppeteer-core";
-import { createCursor, GhostCursor } from "ghost-cursor";
+import { createCursor } from "ghost-cursor";
 import kill from "tree-kill";
 import { checkTurnstile } from "./turnstile.js";
 import { addExtra, PuppeteerExtraPlugin } from "puppeteer-extra";
@@ -15,7 +14,7 @@ export interface ProxyOptions {
 export interface ConnectParams {
   args?: string[];
   headless?: boolean | "auto";
-  customConfig?: ChromeOptions;
+  customConfig?: any;
   proxy?: ProxyOptions;
   turnstile?: boolean;
   connectOption?: ConnectOptions;
@@ -95,6 +94,8 @@ async function pageController({
 }
 
 export async function connect(options: ConnectParams = {}): Promise<ConnectResult> {
+  const { launch, Launcher } = await import("chrome-launcher");
+
   let {
     args = [],
     headless = false,
@@ -158,22 +159,13 @@ export async function connect(options: ConnectParams = {}): Promise<ConnectResul
 
   page = await pageController({ browser, page, proxy, turnstile, xvfbsession, pid: chrome.pid, plugins, chrome, killProcess: true });
 
-browser.on("targetcreated", async target => {
-  if (target.type() === "page") {
-    const newPage = await target.page();
-    if (!newPage) return;
-    await pageController({ 
-      browser, 
-      page: newPage, 
-      proxy, 
-      turnstile, 
-      xvfbsession, 
-      pid: chrome.pid, 
-      plugins, 
-      chrome 
-    });
-  }
-});
+  browser.on("targetcreated", async target => {
+    if (target.type() === "page") {
+      const newPage = await target.page();
+      if (!newPage) return;
+      await pageController({ browser, page: newPage, proxy, turnstile, xvfbsession, pid: chrome.pid, plugins, chrome });
+    }
+  });
 
   return { browser, page };
 }

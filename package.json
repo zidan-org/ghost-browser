@@ -15,7 +15,8 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "tsup"
+    "build": "tsup",
+    "prepare": "npm run build"
   },
   "keywords": [
     "playwright",

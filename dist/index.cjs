@@ -36,7 +36,6 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 
 // src/core/launch.ts
-var import_chrome_launcher = require("chrome-launcher");
 var import_rebrowser_puppeteer_core = __toESM(require("rebrowser-puppeteer-core"), 1);
 var import_ghost_cursor = require("ghost-cursor");
 var import_tree_kill = __toESM(require("tree-kill"), 1);
@@ -154,6 +153,7 @@ async function pageController({
   return page;
 }
 async function connect(options = {}) {
+  const { launch, Launcher } = await import("chrome-launcher");
   let {
     args = [],
     headless = false,
@@ -184,7 +184,7 @@ async function connect(options = {}) {
       ...proxy.host && proxy.port ? [`--proxy-server=${proxy.host}:${proxy.port}`] : []
     ];
   } else {
-    const flags = import_chrome_launcher.Launcher.defaultFlags();
+    const flags = Launcher.defaultFlags();
     const disableIndex = flags.findIndex((f) => f.startsWith("--disable-features"));
     if (disableIndex !== -1) flags[disableIndex] += ",AutomationControlled";
     const compIndex = flags.findIndex((f) => f.startsWith("--disable-component-update"));
@@ -198,7 +198,7 @@ async function connect(options = {}) {
       "--disable-dev-shm-usage"
     ];
   }
-  const chrome = await (0, import_chrome_launcher.launch)({ ignoreDefaultFlags: true, chromeFlags, ...customConfig });
+  const chrome = await launch({ ignoreDefaultFlags: true, chromeFlags, ...customConfig });
   let puppeteerInstance = import_rebrowser_puppeteer_core.default;
   if (plugins.length > 0) {
     const pextra = (0, import_puppeteer_extra.addExtra)(import_rebrowser_puppeteer_core.default);
@@ -212,16 +212,7 @@ async function connect(options = {}) {
     if (target.type() === "page") {
       const newPage = await target.page();
       if (!newPage) return;
-      await pageController({
-        browser,
-        page: newPage,
-        proxy,
-        turnstile,
-        xvfbsession,
-        pid: chrome.pid,
-        plugins,
-        chrome
-      });
+      await pageController({ browser, page: newPage, proxy, turnstile, xvfbsession, pid: chrome.pid, plugins, chrome });
     }
   });
   return { browser, page };
