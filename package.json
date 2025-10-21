@@ -1,6 +1,6 @@
 {
   "name": "ghost-browser",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "About A TypeScript stealth layer for Puppeteer and Playwright that makes your automation behave like a real browser — human-like, undetectable, and smooth.",
   "type": "module",
   "main": "./dist/index.js",
@@ -8,9 +8,9 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "scripts": {
