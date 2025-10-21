@@ -1,9 +1,48 @@
-import { launch, Launcher } from "chrome-launcher";
-import puppeteer from "rebrowser-puppeteer-core";
-import { createCursor } from "ghost-cursor";
-import kill from "tree-kill";
-import { checkTurnstile } from "./turnstile.js";
-import { addExtra } from "puppeteer-extra";
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.connect = connect;
+const chrome_launcher_1 = require("chrome-launcher");
+const rebrowser_puppeteer_core_1 = __importDefault(require("rebrowser-puppeteer-core"));
+const ghost_cursor_1 = require("ghost-cursor");
+const tree_kill_1 = __importDefault(require("tree-kill"));
+const turnstile_js_1 = require("./turnstile.js");
+const puppeteer_extra_1 = require("puppeteer-extra");
 async function pageController({ browser, page, proxy = {}, turnstile = false, xvfbsession, pid, plugins = [], killProcess = false, chrome }) {
     let solveStatus = turnstile;
     page.on("close", () => { solveStatus = false; });
@@ -22,7 +61,7 @@ async function pageController({ browser, page, proxy = {}, turnstile = false, xv
                 catch { }
             if (pid)
                 try {
-                    kill(pid, "SIGKILL", () => { });
+                    (0, tree_kill_1.default)(pid, "SIGKILL", () => { });
                 }
                 catch { }
         }
@@ -30,7 +69,7 @@ async function pageController({ browser, page, proxy = {}, turnstile = false, xv
     if (turnstile) {
         void (async function solver() {
             while (solveStatus) {
-                await checkTurnstile({ page }).catch(() => { });
+                await (0, turnstile_js_1.checkTurnstile)({ page }).catch(() => { });
                 await new Promise(r => setTimeout(r, 1000));
             }
         })();
@@ -47,19 +86,19 @@ async function pageController({ browser, page, proxy = {}, turnstile = false, xv
         Object.defineProperty(MouseEvent.prototype, "screenX", { get() { return this.clientX + window.screenX; } });
         Object.defineProperty(MouseEvent.prototype, "screenY", { get() { return this.clientY + window.screenY; } });
     });
-    const cursor = createCursor(page);
+    const cursor = (0, ghost_cursor_1.createCursor)(page);
     page.realCursor = cursor;
     page.realClick = cursor.click.bind(cursor);
     return page;
 }
-export async function connect(options = {}) {
+async function connect(options = {}) {
     let { args = [], headless = false, customConfig = {}, proxy = {}, turnstile = false, connectOption = {}, disableXvfb = false, plugins = [], ignoreAllFlags = false } = options;
     let xvfbsession = null;
     if (headless === "auto")
         headless = false;
     if (process.platform === "linux" && !disableXvfb) {
         try {
-            const { default: Xvfb } = await import("xvfb");
+            const { default: Xvfb } = await Promise.resolve().then(() => __importStar(require("xvfb")));
             xvfbsession = new Xvfb({ silent: true, xvfb_args: ["-screen", "0", "1920x1080x24", "-ac"] });
             xvfbsession.startSync();
         }
@@ -76,7 +115,7 @@ export async function connect(options = {}) {
         ];
     }
     else {
-        const flags = Launcher.defaultFlags();
+        const flags = chrome_launcher_1.Launcher.defaultFlags();
         const disableIndex = flags.findIndex(f => f.startsWith("--disable-features"));
         if (disableIndex !== -1)
             flags[disableIndex] += ",AutomationControlled";
@@ -92,10 +131,10 @@ export async function connect(options = {}) {
             "--disable-dev-shm-usage"
         ];
     }
-    const chrome = await launch({ ignoreDefaultFlags: true, chromeFlags, ...customConfig });
-    let puppeteerInstance = puppeteer;
+    const chrome = await (0, chrome_launcher_1.launch)({ ignoreDefaultFlags: true, chromeFlags, ...customConfig });
+    let puppeteerInstance = rebrowser_puppeteer_core_1.default;
     if (plugins.length > 0) {
-        const pextra = addExtra(puppeteer);
+        const pextra = (0, puppeteer_extra_1.addExtra)(rebrowser_puppeteer_core_1.default);
         for (const plugin of plugins)
             pextra.use(plugin);
         puppeteerInstance = pextra;

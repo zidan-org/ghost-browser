@@ -1,4 +1,7 @@
-export const checkTurnstile = async ({ page }) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkTurnstile = void 0;
+const checkTurnstile = async ({ page }) => {
     return new Promise(async (resolve) => {
         const timeout = setTimeout(() => resolve(false), 5000);
         try {
@@ -44,3 +47,4 @@ export const checkTurnstile = async ({ page }) => {
         }
     });
 };
+exports.checkTurnstile = checkTurnstile;
