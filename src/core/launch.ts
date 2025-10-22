@@ -28,7 +28,7 @@ export interface ConnectResult {
   page: Page;
 }
 
-async function pageController({
+export async function pageController({
   browser,
   page,
   proxy = {},
@@ -62,14 +62,14 @@ async function pageController({
     }
   });
 
-  if (turnstile) {
-    void (async function solver() {
-      while (solveStatus) {
-        await checkTurnstile({ page }).catch(() => {});
-        await new Promise(r => setTimeout(r, 1000));
-      }
-    })();
-  }
+  void (async function turnstileSolver() {
+    while (solveStatus) {
+      try {
+        await checkTurnstile({ page });
+      } catch {}
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+  })();
 
   if (proxy.username && proxy.password) {
     await page.authenticate({ username: proxy.username, password: proxy.password });
@@ -82,8 +82,12 @@ async function pageController({
   }
 
   await page.evaluateOnNewDocument(() => {
-    Object.defineProperty(MouseEvent.prototype, "screenX", { get() { return this.clientX + window.screenX; } });
-    Object.defineProperty(MouseEvent.prototype, "screenY", { get() { return this.clientY + window.screenY; } });
+    Object.defineProperty(MouseEvent.prototype, "screenX", {
+      get() { return this.clientX + window.screenX; }
+    });
+    Object.defineProperty(MouseEvent.prototype, "screenY", {
+      get() { return this.clientY + window.screenY; }
+    });
   });
 
   const cursor = createCursor(page);
@@ -154,16 +158,39 @@ export async function connect(options: ConnectParams = {}): Promise<ConnectResul
     puppeteerInstance = pextra as any;
   }
 
-  const browser = await puppeteerInstance.connect({ browserURL: `http://127.0.0.1:${chrome.port}`, ...connectOption });
+  const browser = await puppeteerInstance.connect({
+    browserURL: `http://127.0.0.1:${chrome.port}`,
+    ...connectOption
+  });
+
   let [page] = await browser.pages();
 
-  page = await pageController({ browser, page, proxy, turnstile, xvfbsession, pid: chrome.pid, plugins, chrome, killProcess: true });
+  page = await pageController({
+    browser,
+    page,
+    proxy,
+    turnstile,
+    xvfbsession,
+    pid: chrome.pid,
+    plugins,
+    chrome,
+    killProcess: true
+  });
 
-  browser.on("targetcreated", async target => {
+  browser.on("targetcreated", async (target) => {
     if (target.type() === "page") {
       const newPage = await target.page();
       if (!newPage) return;
-      await pageController({ browser, page: newPage, proxy, turnstile, xvfbsession, pid: chrome.pid, plugins, chrome });
+      await pageController({
+        browser,
+        page: newPage,
+        proxy,
+        turnstile,
+        xvfbsession,
+        pid: chrome.pid,
+        plugins,
+        chrome
+      });
     }
   });
 

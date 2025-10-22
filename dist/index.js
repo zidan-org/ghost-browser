@@ -6,38 +6,58 @@ import kill from "tree-kill";
 // src/core/turnstile.ts
 var checkTurnstile = async ({ page }) => {
   return new Promise(async (resolve) => {
-    const timeout = setTimeout(() => resolve(false), 5e3);
+    const timeout = setTimeout(() => {
+      clearTimeout(timeout);
+      resolve(false);
+    }, 5e3);
     try {
       const elements = await page.$$('[name="cf-turnstile-response"]');
       if (elements.length <= 0) {
         const coordinates = await page.evaluate(() => {
-          const coords = [];
-          document.querySelectorAll("div").forEach((el) => {
+          const coordinates2 = [];
+          document.querySelectorAll("div").forEach((item) => {
             try {
-              const rect = el.getBoundingClientRect();
-              const style = window.getComputedStyle(el);
-              if (style.margin === "0px" && style.padding === "0px" && rect.width > 290 && rect.width <= 310 && !el.querySelector("*")) {
-                coords.push({ x: rect.x, y: rect.y, w: rect.width, h: rect.height });
+              const rect = item.getBoundingClientRect();
+              const style = window.getComputedStyle(item);
+              if (style.margin === "0px" && style.padding === "0px" && rect.width > 290 && rect.width <= 310 && !item.querySelector("*")) {
+                coordinates2.push({ x: rect.x, y: rect.y, w: rect.width, h: rect.height });
               }
             } catch {
             }
           });
-          return coords;
+          if (coordinates2.length <= 0) {
+            document.querySelectorAll("div").forEach((item) => {
+              try {
+                const rect = item.getBoundingClientRect();
+                if (rect.width > 290 && rect.width <= 310 && !item.querySelector("*")) {
+                  coordinates2.push({ x: rect.x, y: rect.y, w: rect.width, h: rect.height });
+                }
+              } catch {
+              }
+            });
+          }
+          return coordinates2;
         });
-        for (const c of coordinates) {
+        for (const item of coordinates) {
           try {
-            await page.mouse.click(c.x + 30, c.y + c.h / 2);
+            const x = item.x + 30;
+            const y = item.y + item.h / 2;
+            await page.mouse.click(x, y);
           } catch {
           }
         }
         clearTimeout(timeout);
         return resolve(true);
       }
-      for (const el of elements) {
+      for (const element of elements) {
         try {
-          const parent = await el.evaluateHandle((e) => e.parentElement);
-          const box = await parent.boundingBox();
-          await page.mouse.click(box.x + 30, box.y + box.height / 2);
+          const parentElement = await element.evaluateHandle((el) => el.parentElement);
+          const box = await parentElement.boundingBox();
+          if (box) {
+            const x = box.x + 30;
+            const y = box.y + box.height / 2;
+            await page.mouse.click(x, y);
+          }
         } catch {
         }
       }
@@ -85,15 +105,15 @@ async function pageController({
       }
     }
   });
-  if (turnstile) {
-    void (async function solver() {
-      while (solveStatus) {
-        await checkTurnstile({ page }).catch(() => {
-        });
-        await new Promise((r) => setTimeout(r, 1e3));
+  void (async function turnstileSolver() {
+    while (solveStatus) {
+      try {
+        await checkTurnstile({ page });
+      } catch {
       }
-    })();
-  }
+      await new Promise((r) => setTimeout(r, 1e3));
+    }
+  })();
   if (proxy.username && proxy.password) {
     await page.authenticate({ username: proxy.username, password: proxy.password });
   }
@@ -103,12 +123,16 @@ async function pageController({
     }
   }
   await page.evaluateOnNewDocument(() => {
-    Object.defineProperty(MouseEvent.prototype, "screenX", { get() {
-      return this.clientX + window.screenX;
-    } });
-    Object.defineProperty(MouseEvent.prototype, "screenY", { get() {
-      return this.clientY + window.screenY;
-    } });
+    Object.defineProperty(MouseEvent.prototype, "screenX", {
+      get() {
+        return this.clientX + window.screenX;
+      }
+    });
+    Object.defineProperty(MouseEvent.prototype, "screenY", {
+      get() {
+        return this.clientY + window.screenY;
+      }
+    });
   });
   const cursor = createCursor(page);
   page.realCursor = cursor;
@@ -168,19 +192,42 @@ async function connect(options = {}) {
     for (const plugin of plugins) pextra.use(plugin);
     puppeteerInstance = pextra;
   }
-  const browser = await puppeteerInstance.connect({ browserURL: `http://127.0.0.1:${chrome.port}`, ...connectOption });
+  const browser = await puppeteerInstance.connect({
+    browserURL: `http://127.0.0.1:${chrome.port}`,
+    ...connectOption
+  });
   let [page] = await browser.pages();
-  page = await pageController({ browser, page, proxy, turnstile, xvfbsession, pid: chrome.pid, plugins, chrome, killProcess: true });
+  page = await pageController({
+    browser,
+    page,
+    proxy,
+    turnstile,
+    xvfbsession,
+    pid: chrome.pid,
+    plugins,
+    chrome,
+    killProcess: true
+  });
   browser.on("targetcreated", async (target) => {
     if (target.type() === "page") {
       const newPage = await target.page();
       if (!newPage) return;
-      await pageController({ browser, page: newPage, proxy, turnstile, xvfbsession, pid: chrome.pid, plugins, chrome });
+      await pageController({
+        browser,
+        page: newPage,
+        proxy,
+        turnstile,
+        xvfbsession,
+        pid: chrome.pid,
+        plugins,
+        chrome
+      });
     }
   });
   return { browser, page };
 }
 export {
   checkTurnstile,
-  connect
+  connect,
+  pageController
 };

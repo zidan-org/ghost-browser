@@ -26,6 +26,19 @@ interface ConnectResult$1 {
     browser: Browser;
     page: Page;
 }
+declare function pageController({ browser, page, proxy, turnstile, xvfbsession, pid, plugins, killProcess, chrome }: {
+    browser: Browser;
+    page: Page;
+    proxy?: ProxyOptions$1;
+    turnstile?: boolean;
+    xvfbsession?: any;
+    pid?: number;
+    plugins?: PuppeteerExtraPlugin[];
+    killProcess?: boolean;
+    chrome?: {
+        kill?: () => void;
+    };
+}): Promise<Page>;
 declare function connect(options?: ConnectParams): Promise<ConnectResult$1>;
 
 declare const checkTurnstile: ({ page }: {
@@ -54,4 +67,4 @@ interface ConnectResult {
     page: Page;
 }
 
-export { type ConnectResult, type Options, checkTurnstile, connect };
+export { type ConnectResult, type Options, checkTurnstile, connect, pageController };
