@@ -45,7 +45,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/zidan-org/ghost-browser"
+    "url": "git+https://github.com/zidan-org/ghost-browser.git"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
