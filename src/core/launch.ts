@@ -37,7 +37,7 @@ export async function pageController({
   pid,
   plugins = [],
   killProcess = false,
-  chrome
+  chrome = null
 }: {
   browser: Browser;
   page: Page;
@@ -47,7 +47,7 @@ export async function pageController({
   pid?: number;
   plugins?: PuppeteerExtraPlugin[];
   killProcess?: boolean;
-  chrome?: { kill?: () => void };
+  chrome?: { kill?: () => void } | null;
 }): Promise<Page> {
   let solveStatus = turnstile;
 
@@ -149,7 +149,10 @@ export async function connect(options: ConnectParams = {}): Promise<ConnectResul
     ];
   }
 
-  const chrome = await launch({ ignoreDefaultFlags: true, chromeFlags, ...customConfig });
+  let chrome: { kill?: () => void; port?: number; pid?: number } | null = null;
+  if(!options.connectOption || !options.connectOption.browserWSEndpoint){
+    chrome = await launch({ ignoreDefaultFlags: true, chromeFlags, ...customConfig });
+  }
 
   let puppeteerInstance = puppeteer;
   if (plugins.length > 0) {
@@ -158,10 +161,11 @@ export async function connect(options: ConnectParams = {}): Promise<ConnectResul
     puppeteerInstance = pextra as any;
   }
 
-  const browser = await puppeteerInstance.connect({
-    browserURL: `http://127.0.0.1:${chrome.port}`,
-    ...connectOption
-  });
+  if(chrome){
+    connectOption.browserURL = `http://127.0.0.1:${chrome.port}`;
+  }
+
+  const browser = await puppeteerInstance.connect(connectOption);
 
   let [page] = await browser.pages();
 
@@ -171,7 +175,7 @@ export async function connect(options: ConnectParams = {}): Promise<ConnectResul
     proxy,
     turnstile,
     xvfbsession,
-    pid: chrome.pid,
+    pid: chrome?.pid,
     plugins,
     chrome,
     killProcess: true
@@ -187,7 +191,7 @@ export async function connect(options: ConnectParams = {}): Promise<ConnectResul
         proxy,
         turnstile,
         xvfbsession,
-        pid: chrome.pid,
+        pid: chrome?.pid,
         plugins,
         chrome
       });

@@ -81,7 +81,7 @@ async function pageController({
   pid,
   plugins = [],
   killProcess = false,
-  chrome
+  chrome = null
 }) {
   let solveStatus = turnstile;
   page.on("close", () => {
@@ -185,17 +185,20 @@ async function connect(options = {}) {
       "--disable-dev-shm-usage"
     ];
   }
-  const chrome = await launch({ ignoreDefaultFlags: true, chromeFlags, ...customConfig });
+  let chrome = null;
+  if (!options.connectOption || !options.connectOption.browserWSEndpoint) {
+    chrome = await launch({ ignoreDefaultFlags: true, chromeFlags, ...customConfig });
+  }
   let puppeteerInstance = puppeteer;
   if (plugins.length > 0) {
     const pextra = addExtra(puppeteer);
     for (const plugin of plugins) pextra.use(plugin);
     puppeteerInstance = pextra;
   }
-  const browser = await puppeteerInstance.connect({
-    browserURL: `http://127.0.0.1:${chrome.port}`,
-    ...connectOption
-  });
+  if (chrome) {
+    connectOption.browserURL = `http://127.0.0.1:${chrome.port}`;
+  }
+  const browser = await puppeteerInstance.connect(connectOption);
   let [page] = await browser.pages();
   page = await pageController({
     browser,
@@ -203,7 +206,7 @@ async function connect(options = {}) {
     proxy,
     turnstile,
     xvfbsession,
-    pid: chrome.pid,
+    pid: chrome?.pid,
     plugins,
     chrome,
     killProcess: true
@@ -218,7 +221,7 @@ async function connect(options = {}) {
         proxy,
         turnstile,
         xvfbsession,
-        pid: chrome.pid,
+        pid: chrome?.pid,
         plugins,
         chrome
       });

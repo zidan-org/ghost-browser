@@ -37,7 +37,7 @@ declare function pageController({ browser, page, proxy, turnstile, xvfbsession, 
     killProcess?: boolean;
     chrome?: {
         kill?: () => void;
-    };
+    } | null;
 }): Promise<Page>;
 declare function connect(options?: ConnectParams): Promise<ConnectResult$1>;
 
