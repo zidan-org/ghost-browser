@@ -1,6 +1,6 @@
 {
   "name": "ghost-browser",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "About A TypeScript stealth layer for Puppeteer and Playwright that makes your automation behave like a real browser — human-like, undetectable, and smooth.",
   "type": "module",
   "main": "./dist/index.js",
